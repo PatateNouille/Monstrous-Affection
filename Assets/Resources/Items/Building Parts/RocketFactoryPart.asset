@@ -15,9 +15,9 @@ MonoBehaviour:
   itemName: Rocket Factory Part
   customData: {fileID: 8755522971522737569, guid: 8df621adc43a85843a1635f424970ca5,
     type: 3}
-  highlightOffset: {x: 0, y: 0, z: 0}
-  highlightSize: {x: 1, y: 1, z: 1}
+  highlightOffset: {x: 0, y: 0.3, z: 0}
+  highlightSize: {x: 1.2, y: 1.2, z: 1.2}
   icon: {fileID: 21300000, guid: d4064ab0b384c984b815db36202e4fda, type: 3}
   building: {fileID: 5811645412660504479, guid: 7f4dd7e1205f8514c8520aab195fd395,
     type: 3}
-  size: {x: 5, y: 4, z: 4}
+  size: {x: 6, y: 4, z: 5}

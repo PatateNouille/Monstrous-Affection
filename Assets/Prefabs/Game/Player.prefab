@@ -244,6 +244,10 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   jetpackCapacity: 1
+  jetpackCD:
+    duration: 1
+    isStarted: 0
+    repaintTrigger: 0
   hitCooldown:
     duration: 0.5
     isStarted: 0
@@ -475,9 +479,9 @@ MonoBehaviour:
   useAsUniqueInstance: 1
   fog: 1
   fogColor: {r: 0.09011215, g: 0.1111975, b: 0.4245283, a: 1}
-  fogDensity: 0.06
-  fogStart: 1
-  fogEnd: 1
+  fogDensity: 0.04
+  fogStart: 5
+  fogEnd: 15
   fogMode: 3
   camera: {fileID: 0}
 --- !u!1 &7701446073920054684
@@ -523,8 +527,8 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 35
-  m_Range: 10
+  m_Intensity: 40
+  m_Range: 12
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -557,7 +561,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295

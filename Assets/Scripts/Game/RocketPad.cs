@@ -120,8 +120,6 @@ public class RocketPad : Interactable
 
     void SetNextPart(int index)
     {
-        Debug.Log("SEtNextPArt");
-
         if (index >= 0 && index < ItemManager.Instance.RocketPartCount)
         {
             nextPart = ItemManager.Instance.GetRocketPartData(index);
@@ -157,8 +155,6 @@ public class RocketPad : Interactable
 
     public Rocket CraftRocket()
     {
-        Debug.Log("CraftRocket");
-
         if (Game.Instance.isMenu)
         {
             PlayerPrefs.SetInt("Built Rocket", 1);
