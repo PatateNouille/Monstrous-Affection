@@ -140,6 +140,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  beamColor: {r: 11.984314, g: 11.984314, b: 11.984314, a: 1}
 --- !u!1 &6289972688504878904
 GameObject:
   m_ObjectHideFlags: 0

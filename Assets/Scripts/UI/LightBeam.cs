@@ -18,6 +18,9 @@ public class LightBeam : MonoBehaviour
     [SerializeField]
     AnimationCurve opacityOverLifetime = null;
 
+    [ColorUsage(true, true)]
+    public Color beamColor = Color.white;
+
     Vector3 baseScale = Vector3.one;
 
     Renderer[] rends = null;
@@ -47,7 +50,8 @@ public class LightBeam : MonoBehaviour
             float opacity = opacityOverLifetime.Evaluate(progress);
             foreach (var rend in rends)
             {
-                Color col = rend.material.color;
+                Color col = beamColor;
+                rend.material.SetColor("_EmissionColor", col);
                 col.a = opacity;
                 rend.material.color = col;
             }
