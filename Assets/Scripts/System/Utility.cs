@@ -1198,8 +1198,10 @@ public static class Utility
 
         // The total duration in seconds
         public float Duration { get => duration; set => duration = value; }
-        // Normalized between 0 and 1, in percentage (1 mean it's over)
+        // Normalized between 0 and 1, in percentage (1 mean it's over, 0 when not started)
         public float Progress { get => IsStarted ? Mathf.Clamp01(1f - Remaining / duration) : 0f; }
+        // Normalized between 0 and 1, in percentage (1 mean it's over, 1 when not started)
+        public float ProgressRaw { get => Mathf.Clamp01(1f - Remaining / duration); }
         // Normalized between 0 and 1, in percentage (0 mean it's over)
         public float Cooldown { get => IsStarted ? Mathf.Clamp01(Remaining / duration) : 0f; }
         // The time remaining in seconds

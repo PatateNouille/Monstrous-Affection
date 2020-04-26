@@ -7,6 +7,9 @@ public class FaceCamera : MonoBehaviour
     [SerializeField]
     public bool inverted = false;
 
+    [SerializeField]
+    public bool keepVertical = false;
+
     PlanetSurfaceAligner aligner = null;
     Camera cam = null;
 
@@ -32,6 +35,11 @@ public class FaceCamera : MonoBehaviour
         else
         {
             up = cam.transform.up;
+        }
+
+        if (keepVertical)
+        {
+            dir = Vector3.ProjectOnPlane(dir, up);
         }
 
         transform.rotation = Quaternion.LookRotation(dir, up);
