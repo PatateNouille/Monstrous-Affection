@@ -17,11 +17,21 @@ public class UIItemInfo : MonoBehaviour
         icon.sprite = data.icon;
     }
 
-    public void SetCount(uint _count)
+    public void SetCount(uint _desired, uint? _current = null)
     {
-        if (_count == 0)
-            count.text = "";
+        if (_desired == 0)
+        {
+            if (_current == null)
+                count.text = "";
+            else
+                count.text = "x" + _current.Value;
+        }
         else
-            count.text = "x" + _count;
+        {
+            if (_current == null)
+                count.text = "x" + _desired;
+            else
+                count.text = $"{_current} / {_desired}";
+        }
     }
 }

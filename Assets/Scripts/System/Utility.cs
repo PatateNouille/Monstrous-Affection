@@ -511,9 +511,9 @@ public static class Utility
 
     #region Flags
 
-    public static bool HasFlag(int flags, int mask)
+    public static bool HasFlag(this int flagList, int flagToTest)
     {
-        return (flags & mask) == mask;
+        return (flagList & flagToTest) == flagToTest;
     }
 
     #endregion
@@ -555,6 +555,13 @@ public static class Utility
         return AssetDatabase.LoadAssetAtPath(path, typeof(Sprite)) as Sprite;
     }
 
+    public static void LoadEditorTexture(ref Texture dst, string name)
+    {
+        if (dst == null)
+        {
+            dst = EditorGUIUtility.FindTexture(name);
+        }
+    }
 #endif
 
     #endregion
@@ -590,7 +597,10 @@ public static class Utility
         EditorGUI.DrawRect(new Rect(rect.x, rect.y + rect.height, rect.width, size), color); // Bot
     }
 
-    public static Vector2 ScrollableElementList(int elemCount, int maxElemCountShown, float elemHeight, Vector2 scrollPos, System.Func<int, ElementListResult> showElemCallback, string title, Texture[] topBarIcons, out int topButtonPressed, float topBarIconMargin, Color backgroundColor, Color borderColor, float borderSize)
+    public static Vector2 ScrollableElementList(
+        int elemCount, int maxElemCountShown, float elemHeight, Vector2 scrollPos, System.Func<int, ElementListResult> showElemCallback,
+        string title, Texture[] topBarIcons, out int topButtonPressed, float topBarIconMargin,
+        Color backgroundColor, Color borderColor, float borderSize)
     {
         // Top bar
         {
@@ -599,11 +609,12 @@ public static class Utility
             rect = EditorGUI.PrefixLabel(rect, new GUIContent(title));
 
             // Buttons
+            topButtonPressed = -1;
+
+            if (topBarIcons != null)
             {
                 Rect button = rect;
                 button.width = button.height;
-
-                topButtonPressed = -1;
 
                 for (int i = 0; i < topBarIcons.Length; i++)
                 {
@@ -736,7 +747,7 @@ public static class Utility
 
     #region Singleton Pattern
 
-    public class UniqueInstance<T> : MonoBehaviour where T : MonoBehaviour
+    public class UniqueInstance<T> : MonoBehaviour where T : UniqueInstance<T>
     {
         static T instance = null;
 
@@ -779,6 +790,11 @@ public static class Utility
                 return instance;
             }
         }
+
+        protected virtual void Awake()
+        {
+            if (useAsUniqueInstance) Refresh(this as T);
+        }
     }
 
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
@@ -805,7 +821,6 @@ public static class Utility
 
                 return instance;
             }
-            set { instance = value; }
         }
     }
 
@@ -1532,6 +1547,13 @@ public static class Utility
         {
             elementCountDelta = (int)type * count;
         }
+
+        public static ElementListResult operator* (ElementListResult elem, int count)
+        {
+            elem.elementCountDelta *= count;
+
+            return elem;
+        }
     }
 
     #endregion
@@ -1967,9 +1989,14 @@ public static class Utility
         }
     }
 
-    [CustomPropertyDrawer(typeof(LockedAttribute), true)]
+    [CustomPropertyDrawer(typeof(LockedAttribute))]
     public class LockedDrawer : PropertyDrawer
     {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUI.GetPropertyHeight(property, label, true);
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);

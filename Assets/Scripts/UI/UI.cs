@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,38 +16,20 @@ public class UI : UniqueInstance<UI>
     Canvas fixedCanvas = null;
 
     [Header("Prefabs")]
-    [SerializeField]
     public UIItemInfo itemInfo = null;
-
-    [SerializeField]
     public InfoBubble infoBubble = null;
-
-    [SerializeField]
     public SimpleInfoBubble simpleInfoBubble = null;
-
-    [SerializeField]
     public BuildZone buildZone = null;
-
+    public LightBeam lightBeam = null;
     [SerializeReference]
     GameObject highlight = null;
 
     [Header("UI elements")]
-    [SerializeField]
     public Bar monsterHunger = null;
-
-    [SerializeField]
     public Bar monsterEatCD = null;
-
-    [SerializeField]
     public Bar rocketProgress = null;
-
-    [SerializeField]
     public Bar rocketFuel = null;
-
-    [SerializeField]
     public Bar jetpackCharge = null;
-
-    [SerializeField]
     public Bar playerHealth = null;
 
     [HideInInspector]
@@ -114,6 +97,11 @@ public class UI : UniqueInstance<UI>
 
     public static void MakeItemInfos(GameObject go, List<Factory.ItemInfo> infos)
     {
+        UI.MakeItemInfos(go, infos?.Select(info => (info.name, info.count, (uint?)null)).ToList());
+    }
+
+    public static void MakeItemInfos(GameObject go, List<(string name, uint desired, uint? current)> infos)
+    {
         int infoCount = infos?.Count ?? 0;
 
         for (int i = go.transform.childCount; i < infoCount; i++)
@@ -123,7 +111,7 @@ public class UI : UniqueInstance<UI>
         }
         for (int i = go.transform.childCount; i > infoCount; i--)
         {
-            Destroy(go.transform.GetChild(go.transform.childCount - 1).gameObject);
+            Destroy(go.transform.GetChild(i - 1).gameObject);
         }
 
         for (int i = 0; i < infoCount; i++)
@@ -131,7 +119,7 @@ public class UI : UniqueInstance<UI>
             UIItemInfo uiItem = go.transform.GetChild(i).GetComponent<UIItemInfo>();
 
             uiItem.SetIconFromData(ItemManager.Instance.GetData(infos[i].name));
-            uiItem.SetCount(infos[i].count);
+            uiItem.SetCount(infos[i].desired, infos[i].current);
         }
     }
 }

@@ -16,6 +16,12 @@ public class Inventory
 
     public bool IsFull => ItemCount >= maxItemCount;
 
+    public delegate void OnItemChanged(string name, uint before, uint now);
+    public OnItemChanged onItemChanged = null;
+
+    public delegate void OnInventoryChanged();
+    public OnInventoryChanged onInventoryChanged = null;
+
     public uint Count(string name)
     {
         uint val;
@@ -25,35 +31,50 @@ public class Inventory
 
     public uint Add(string name, uint count)
     {
-        uint have = Count(name);
+        uint had = Count(name);
+
+        if (IsFull) return had;
+
         count = (uint)Mathf.Min((int)(maxItemCount - ItemCount), (int)count);
 
-        have += count;
+        uint have = had + count;
+
         ItemCount += count;
         Items[name] = have;
+
+        onItemChanged?.Invoke(name, had, have);
+        onInventoryChanged?.Invoke();
 
         return have;
     }
 
     public uint Remove(string name, uint count)
     {
-        uint have;
+        uint had;
 
-        if (!Items.TryGetValue(name, out have))
+        if (!Items.TryGetValue(name, out had))
         {
             return 0;
         }
-        else if (have <= count)
+        else if (had <= count)
         {
-            ItemCount -= have;
+            ItemCount -= had;
             Items.Remove(name);
+
+            onItemChanged?.Invoke(name, had, 0);
+            onInventoryChanged?.Invoke();
+
             return 0;
         }
         else
         {
-            have -= count;
+            uint have = had - count;
             ItemCount -= count;
             Items[name] = have;
+
+            onItemChanged?.Invoke(name, had, have);
+            onInventoryChanged?.Invoke();
+
             return have;
         }
     }

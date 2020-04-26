@@ -133,7 +133,8 @@ public class RocketPad : Interactable
         {
             nextPart = null;
 
-            partBubble.SetContent("Completed !", null);
+            partBubble.SetTitle("Completed !");
+            partBubble.ClearContent();
         }
     }
 

@@ -42,11 +42,6 @@ public class Game : UniqueInstance<Game>
 
     void Start()
     {
-        Refresh(this);
-
-        ItemManager.Refresh();
-        Planet.Refresh();
-
         planetGens = Resources.LoadAll<PlanetGenData>("Generation/");
 
         tutorialCompleted = PlayerPrefs.GetInt("Built Rocket") == 1;
@@ -78,8 +73,6 @@ public class Game : UniqueInstance<Game>
         if (!populatePlanet) return;
         
         CurPlanet.Populate(planetGens[Random.Range(0, planetGens.Length)]);
-
-        Monster.Refresh();
     }
 
     public void Launch()

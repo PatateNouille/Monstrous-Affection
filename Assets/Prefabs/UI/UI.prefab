@@ -3025,6 +3025,8 @@ MonoBehaviour:
     type: 3}
   buildZone: {fileID: 4840478956598579737, guid: bfb5e49073a00e44d938de3bc4ba62ac,
     type: 3}
+  lightBeam: {fileID: -5548332952905174531, guid: d06fcc09204ba7d4a9bfd6361e910193,
+    type: 3}
   highlight: {fileID: 3958852323879170611, guid: 71945fac695fb9c42bcffe73a571aa53,
     type: 3}
   monsterHunger: {fileID: 5958819036185156821}
@@ -3032,9 +3034,7 @@ MonoBehaviour:
   rocketProgress: {fileID: 5567406312321210898}
   rocketFuel: {fileID: 9180816816271892532}
   jetpackCharge: {fileID: 9025211379072613286}
-  jetpackRechargeCD: {fileID: 0}
   playerHealth: {fileID: 6571993652925647275}
-  playerHitCD: {fileID: 0}
   interactables: []
 --- !u!1 &8237461351704559194
 GameObject:

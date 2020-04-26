@@ -33,14 +33,6 @@ public class SceneSwitcher : Utility.LoadedSingleton<SceneSwitcher, SceneSwitche
         else
         {
             SceneManager.LoadScene(buildIndex);
-
-            Game.Refresh();
-            Planet.Refresh();
-            MainCamera.Refresh();
-            Player.Refresh();
-            InteractionZone.Refresh();
-            ItemManager.Refresh();
-            Monster.Refresh();
         }
     }
 
@@ -77,22 +69,11 @@ public class SceneSwitcher : Utility.LoadedSingleton<SceneSwitcher, SceneSwitche
 
         Player.Instance.interaction.targets.Clear();
 
-        Game.Refresh();
-
         if (rocket != null)
         {
             rocket.Land();
 
             rocket = null;
-        }
-        else
-        {
-            Planet.Refresh();
-            MainCamera.Refresh();
-            Player.Refresh();
-            InteractionZone.Refresh();
-            ItemManager.Refresh();
-            Monster.Refresh();
         }
     }
 }

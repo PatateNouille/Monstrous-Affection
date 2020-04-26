@@ -19,9 +19,14 @@ public class Factory : Interactable, IPowered
             count = _count;
         }
 
-        public static List<ItemInfo> ListFromNames(params string[] names)
+        public static List<ItemInfo> MakeList(params (string name, uint count)[] items)
         {
-            return names.Select(n => new ItemInfo(n)).ToList();
+            return items.Select(i => new ItemInfo(i.name, i.count)).ToList();
+        }
+
+        public static List<(string name, uint desired, uint? count)> MakeList(params (string name, uint desired, uint? count)[] items)
+        {
+            return items.ToList();
         }
     }
 
@@ -48,10 +53,7 @@ public class Factory : Interactable, IPowered
     Transform fuelInfoOffset = null;
 
     [SerializeField]
-    Transform outputBegin = null;
-
-    [SerializeField]
-    Transform outputEnd = null;
+    Transform output = null;
 
     [SerializeField]
     Timer outputDelay = null;
@@ -64,6 +66,9 @@ public class Factory : Interactable, IPowered
 
     [SerializeField]
     public int recipeSelected = 0;
+
+    [SerializeField]
+    public bool automaticCraft = true;
 
     [SerializeField]
     public List<Recipe> recipes = null;
@@ -98,16 +103,8 @@ public class Factory : Interactable, IPowered
 
         Gizmos.color = Color.cyan;
 
-        if (outputBegin != null)
-            DrawCross(outputBegin.position, .5f, outputBegin.rotation, true);
-
-        if (outputEnd != null)
-        {
-            if (outputBegin != null)
-                Gizmos.DrawLine(outputBegin.position, outputEnd.position);
-
-            DrawCross(outputEnd.position, .5f, outputEnd.rotation, true);
-        }
+        if (output != null)
+            DrawCross(output.position, .5f, output.rotation, true);
     }
 
     private void Start()
@@ -119,9 +116,14 @@ public class Factory : Interactable, IPowered
         craftBubble = Instantiate(UI.Instance.infoBubble, craftInfoOffset.position, Quaternion.identity);
         fuelBubble = Instantiate(UI.Instance.simpleInfoBubble, fuelInfoOffset.position, Quaternion.identity);
 
+        craftIntake.inventory.onInventoryChanged += TryCraftCurrentRecipe;
+        craftIntake.inventory.onInventoryChanged += SetCraftBubble;
+        fuelIntake.inventory.onInventoryChanged += SetFuelBubble;
+
         SetSelectedRecipe(0);
 
-        SetBubbles(false);
+        SetCraftBubble();
+        SetFuelBubble();
     }
 
     void Update()
@@ -168,28 +170,6 @@ public class Factory : Interactable, IPowered
                     anim.SetTrigger("Drop");
                 }
             }
-            else
-            {
-                if (CheckRecipeInput())
-                {
-                    craftDelay.Duration = recipes[recipeSelected].duration;
-                    craftDelay.Start();
-                    crafting = true;
-
-                    foreach (var item in recipes[recipeSelected].input)
-                    {
-                        craftIntake.inventory.Remove(item.name, item.count);
-                    }
-
-                    foreach (var item in recipes[recipeSelected].output)
-                    {
-                        for (int i = 0; i < item.count; i++)
-                        {
-                            dropQueue.Enqueue(item.name);
-                        }
-                    }
-                }
-            }
         }
 
         // Fuel
@@ -204,8 +184,6 @@ public class Factory : Interactable, IPowered
                 fuelIntake.inventory.Remove("Uranium", uraniumCount);
 
                 fuelIntake.filter.infos.Remove(new ItemFilter.Info("Uranium", true));
-
-                SetBubbles(false);
             }
 
             try
@@ -214,7 +192,7 @@ public class Factory : Interactable, IPowered
 
                 float missingPower = powerCapacity.Elapsed;
 
-                fuelItem = fuelIntake.inventory.Items.First(i => ((ItemManager.Instance.GetData(i.Key) as FuelData)?.power ?? float.PositiveInfinity) < missingPower);
+                fuelItem = fuelIntake.inventory.Items.First(i => ((ItemManager.Instance.GetData(i.Key) as FuelData)?.power ?? float.PositiveInfinity) <= missingPower);
 
                 fuelIntake.inventory.Remove(fuelItem.Key, ConsumeFuel(fuelItem.Key, fuelItem.Value));
             }
@@ -233,10 +211,9 @@ public class Factory : Interactable, IPowered
         if (dropping && outputCooldown.IsStarted)
         {
             bool ended = outputCooldown.Timeout(Time.fixedDeltaTime);
-            float progress = outputCooldown.Progress;
 
-            currentDrop.MovePosition(Vector3.Lerp(outputBegin.position, outputEnd.position, progress));
-            currentDrop.MoveRotation(Quaternion.Slerp(outputBegin.rotation, outputEnd.rotation, progress));
+            currentDrop.MovePosition(output.position);
+            currentDrop.MoveRotation(output.rotation);
 
             if (ended)
             {
@@ -249,6 +226,9 @@ public class Factory : Interactable, IPowered
                 {
                     currentDrop = null;
                     dropping = false;
+
+                    if (automaticCraft) 
+                        TryCraftCurrentRecipe();
                 }
             }
         }
@@ -268,6 +248,30 @@ public class Factory : Interactable, IPowered
         return true;
     }
 
+    public void TryCraftCurrentRecipe()
+    {
+        if (crafting || dropping || outputDelay.IsStarted) return;
+
+        if (!CheckRecipeInput()) return;
+
+        craftDelay.Duration = recipes[recipeSelected].duration;
+        craftDelay.Start();
+        crafting = true;
+
+        foreach (var item in recipes[recipeSelected].input)
+        {
+            craftIntake.inventory.Remove(item.name, item.count);
+        }
+
+        foreach (var item in recipes[recipeSelected].output)
+        {
+            for (int i = 0; i < item.count; i++)
+            {
+                dropQueue.Enqueue(item.name);
+            }
+        }
+    }
+
     public int SetSelectedRecipe(int selected)
     {
         if (recipes.Count == 0)
@@ -275,7 +279,9 @@ public class Factory : Interactable, IPowered
         else
             recipeSelected = selected % recipes.Count;
 
-        SetBubbles(true);
+        if (automaticCraft) TryCraftCurrentRecipe();
+
+        SetCraftBubble();
 
         SetCraftIntakeFilter();
 
@@ -296,17 +302,20 @@ public class Factory : Interactable, IPowered
         }
     }
 
-    void SetBubbles(bool craftOnly)
+    void SetFuelBubble()
     {
-        craftBubble.SetFromRecipe(recipes.Count > 0 && recipeSelected != -1 ? recipes[recipeSelected] : null);
+        if (!uraniumPowered)
+            fuelBubble.SetContent("Fuel Input", ItemInfo.MakeList(
+                ("Wood",    fuelIntake.inventory.Count("Wood"), null),
+                ("Gaz",     fuelIntake.inventory.Count("Gaz"),  null),
+                ("Uranium", 1,                                  0)));
+        else
+            fuelBubble.SetContent("Fueled", ItemInfo.MakeList(("Uranium", 1, 1)));
+    }
 
-        if (!craftOnly)
-        {
-            if (!uraniumPowered)
-                fuelBubble.SetContent("Fuel Input", ItemInfo.ListFromNames("Wood", "Gaz", "Uranium"));
-            else
-                fuelBubble.SetContent("Fuel Input", ItemInfo.ListFromNames("Wood", "Gaz"));
-        }
+    void SetCraftBubble()
+    {
+        craftBubble.SetFromRecipeInventory(recipes.Count > 0 && recipeSelected != -1 ? recipes[recipeSelected] : null, craftIntake.inventory);
     }
 
     bool CheckRecipeInput()
