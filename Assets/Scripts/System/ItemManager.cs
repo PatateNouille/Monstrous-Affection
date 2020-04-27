@@ -99,19 +99,22 @@ public class ItemManagerEditor : Editor
     {
         base.OnInspectorGUI();
 
-        EditorGUILayout.Space();
-
-        itemName = EditorGUILayout.TextField("Item Name", itemName);
-
-        int count = Event.current.shift ? 10 : 1; 
-
-        if (GUILayout.Button("Spawn item x"+count))
+        if (Application.isPlaying)
         {
-            for (int i = 0; i < count; i++)
-            {
-                IItem item = ItemManager.Instance.SpawnItem(itemName);
+            EditorGUILayout.Space();
 
-                item.transform.position = Player.Instance.transform.position + Player.Instance.transform.up * 4f + Random.insideUnitSphere;
+            itemName = EditorGUILayout.TextField("Item Name", itemName);
+
+            int count = Event.current.shift ? 10 : 1;
+
+            if (GUILayout.Button("Spawn item x" + count))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    IItem item = ItemManager.Instance.SpawnItem(itemName);
+
+                    item.transform.position = Player.Instance.transform.position + Player.Instance.transform.up * 4f + Random.insideUnitSphere;
+                }
             }
         }
     }
