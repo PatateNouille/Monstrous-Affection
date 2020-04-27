@@ -5,9 +5,13 @@ using UnityEngine.UI;
 
 using static Utility;
 
+public delegate void EventPowerChanged();
+
 public interface IPowered
 {
     float Power { get; }
+
+    EventPowerChanged OnPowerChanged { get; set; }
 }
 
 public class PowerScreen : MonoBehaviour

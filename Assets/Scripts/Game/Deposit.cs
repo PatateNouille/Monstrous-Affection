@@ -93,7 +93,7 @@ public class Deposit : Interactable
 
             Vector3 offset = Random.insideUnitSphere * lootMaxDist;
 
-            iitem.Interactable.transform.position = transform.position + offset;
+            iitem.transform.position = transform.position + offset;
 
             break;
         }

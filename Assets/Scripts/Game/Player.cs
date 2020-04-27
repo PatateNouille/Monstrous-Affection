@@ -190,8 +190,8 @@ public class Player : UniqueInstance<Player>
 
             for (int i = 0; i < grabbed.Count; i++)
             {
-                grabbed[i].Interactable.transform.position = grabOffset.TransformPoint(new Vector3(0f, itemHeight * i, 0f));
-                grabbed[i].Interactable.transform.rotation = grabOffset.rotation;
+                grabbed[i].transform.position = grabOffset.TransformPoint(new Vector3(0f, itemHeight * i, 0f));
+                grabbed[i].transform.rotation = grabOffset.rotation;
             }
 
             if (inputDeinteract)

@@ -73,10 +73,11 @@ public class Factory : Interactable, IPowered
     [SerializeField]
     public List<Recipe> recipes = null;
 
-    public float Power => uraniumPowered ? 1f : powerCapacity.Remaining / powerCapacity.Duration;
+    public float Power => uraniumPowered ? 1f : powerCapacity.Cooldown;
     public bool IsOutOfPower => Mathf.Approximately(Power, 0f);
 
-    [SerializeField, Locked]
+    public EventPowerChanged OnPowerChanged { get; set; } = null;
+
     bool uraniumPowered = false;
 
     [SerializeField, Locked]
@@ -162,7 +163,7 @@ public class Factory : Interactable, IPowered
                     item.SetPlanetInfluence(false);
                     item.Interactable.SetInteractable(false);
 
-                    currentDrop = item.Interactable.GetComponent<Rigidbody>();
+                    currentDrop = item.gameObject.GetComponent<Rigidbody>();
                     currentDrop.isKinematic = true;
 
                     outputCooldown.Start();

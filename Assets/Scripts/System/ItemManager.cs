@@ -82,7 +82,7 @@ public class ItemManager : UniqueInstance<ItemManager>
 
         IItem item = Instantiate(itemTemplate).AddComponent(itemComponent[data.GetType()]) as IItem;
 
-        item.Interactable.name += $" ({name})";
+        item.gameObject.name = $"Item {name}";
         item.Data = data;
 
         return item;

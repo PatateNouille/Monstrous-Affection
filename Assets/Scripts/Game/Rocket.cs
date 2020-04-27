@@ -31,11 +31,17 @@ public class Rocket : Interactable, IPowered
 
     public bool HighEnough => transform.position.magnitude >= minimumFlyDist;
 
+    public float FloatProperty => FloatProperty;
+
+    public EventPowerChanged OnPowerChanged { get; set; } = null;
+
     bool flying = false;
     bool landing = false;
 
     public override bool CanBeInteractedWith()
     {
+        Debug.Log(FloatProperty);
+
         return base.CanBeInteractedWith() && Mathf.Approximately(Power, 1f) && Player.Instance.GrabbedType == null;
     }
 
@@ -63,6 +69,8 @@ public class Rocket : Interactable, IPowered
         {
             fuelStored = fuelCapacity;
         }
+
+        OnPowerChanged?.Invoke();
 
         UI.Instance.rocketFuel.SetProgress(Power);
 
@@ -102,7 +110,7 @@ public class Rocket : Interactable, IPowered
             offset.y = Mathf.Abs(offset.y);
 
             IItem item = ItemManager.Instance.SpawnItem(itemName);
-            item.Interactable.transform.position = transform.TransformPoint(offset);
+            item.transform.position = transform.TransformPoint(offset);
         }
 
         Destroy();

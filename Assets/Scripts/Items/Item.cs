@@ -150,6 +150,10 @@ public class ItemFilter
 
 public interface IItem
 {
+    GameObject gameObject { get; }
+
+    Transform transform { get; }
+
     Interactable Interactable { get; }
 
     ItemData Data { get; set; }

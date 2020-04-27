@@ -99,7 +99,7 @@ public class IconRenderer : MonoBehaviour
 
         SpawnItem(itemName);
 
-        Sprite sprite = RenderObjectIcon(curItem.Interactable.gameObject, itemName);
+        Sprite sprite = RenderObjectIcon(curItem.gameObject, itemName);
 
         AssignIcon(itemName, sprite);
     }
@@ -124,12 +124,12 @@ public class IconRenderer : MonoBehaviour
     {
         curItem = ItemManager.Instance.SpawnItem(itemName);
 
-        curItem.Interactable.transform.parent = offset.transform;
-        curItem.Interactable.transform.localPosition = Vector3.zero;
-        curItem.Interactable.transform.localRotation = Quaternion.identity;
-        curItem.Interactable.transform.localScale = Vector3.one;
+        curItem.transform.parent = offset.transform;
+        curItem.transform.localPosition = Vector3.zero;
+        curItem.transform.localRotation = Quaternion.identity;
+        curItem.transform.localScale = Vector3.one;
 
-        curItem.Interactable.GetComponent<PlanetSurfaceAligner>().enabled = false;
+        curItem.gameObject.GetComponent<PlanetSurfaceAligner>().enabled = false;
 
         curItem.Init();
     }
