@@ -31,6 +31,9 @@ public class Player : UniqueInstance<Player>
     Vector3 movementDropFactor = Vector3.one;
 
     [SerializeField]
+    float movementDropMaxBackward = 1f;
+
+    [SerializeField]
     Timer interactCooldown = null;
 
     [SerializeField]
@@ -197,9 +200,13 @@ public class Player : UniqueInstance<Player>
 
                 float radialDropForce = GetStep(0f, inputRotate * rotationSpeed * rotationDropFactor, rotationDropMaxSpeed);
 
+                Vector3 localMove = Vector3.Scale(transform.InverseTransformDirection(rb.velocity), movementDropFactor);
+
+                localMove.z = Mathf.Max(localMove.z, -movementDropMaxBackward);
+
                 grabbed[0].Interactable.EndInteraction();
                 grabbed[0].Interactable.GetComponent<Rigidbody>().velocity =
-                    transform.TransformDirection(Vector3.Scale(transform.InverseTransformDirection(rb.velocity), movementDropFactor)) 
+                    transform.TransformDirection(localMove)
                     + radialDropForce * transform.right;
                 grabbed[0].Interactable.onDestroy -= OnGrabbedDestroyed;
                 grabbed.RemoveAt(0);

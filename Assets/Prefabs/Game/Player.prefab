@@ -198,6 +198,7 @@ MonoBehaviour:
   rotationDropFactor: 2
   rotationDropMaxSpeed: 25
   movementDropFactor: {x: 3, y: 0.3, z: 3}
+  movementDropMaxBackward: 2
   interactCooldown:
     duration: 0.2
     isStarted: 0
