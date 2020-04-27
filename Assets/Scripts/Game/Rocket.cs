@@ -25,7 +25,7 @@ public class Rocket : Interactable, IPowered
     [SerializeField]
     float lootMaxDist = 1f;
 
-    uint fuelStored = 0;
+    public uint fuelStored = 0;
 
     public float Power => (float)fuelStored / fuelCapacity;
 

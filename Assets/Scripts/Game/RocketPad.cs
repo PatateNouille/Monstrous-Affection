@@ -130,10 +130,8 @@ public class RocketPad : Interactable
     {
         FuelData gazData = ItemManager.Instance.GetData("Gaz") as FuelData;
 
-        float fuelCapacity = Game.Instance.rocket.fuelCapacity;
-        float fuelMissing = (1f - rocket?.Power) * fuelCapacity ?? fuelCapacity;
-
-        uint gazNeeded = (uint)(fuelMissing / gazData.power);
+        uint fuelCapacity = Game.Instance.rocket.fuelCapacity;
+        uint gazNeeded = rocket == null ? fuelCapacity : fuelCapacity - rocket.fuelStored;
 
         if (gazNeeded > 0)
             fuelBubble.SetContent("Fuel Intake", new List<(string, uint, uint?)>() { ("Gaz", gazNeeded, fuelIntake.inventory.Count("Gaz")) });
@@ -148,10 +146,8 @@ public class RocketPad : Interactable
     {
         FuelData gazData = ItemManager.Instance.GetData("Gaz") as FuelData;
 
-        float fuelCapacity = Game.Instance.rocket.fuelCapacity;
-        float fuelMissing = (1f - rocket?.Power) * fuelCapacity ?? fuelCapacity;
-
-        uint gazNeeded = (uint)(fuelMissing / gazData.power);
+        uint fuelCapacity = Game.Instance.rocket.fuelCapacity;
+        uint gazNeeded = rocket == null ? fuelCapacity : fuelCapacity - rocket.fuelStored;
 
         fuelIntake.inventory.maxItemCount = gazNeeded;
 
@@ -235,6 +231,7 @@ public class RocketPad : Interactable
 
         TryConsumeFuel();
         SetFuelBubble();
+        SetFuelIntake();
 
         return rocket;
     }

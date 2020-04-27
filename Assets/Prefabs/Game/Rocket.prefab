@@ -142,13 +142,14 @@ MonoBehaviour:
   highlighOffset: {x: 0, y: 0, z: 0}
   highlightSize: {x: 2, y: 8, z: 2}
   interactable: 1
-  fuelCapacity: 250
+  fuelCapacity: 5
   thrustParticles: {fileID: 471873259194595620}
   thrustSpeed: 10
   playerSeat: {fileID: 3537157220402735397}
   landDist: 50
   minimumFlyDist: 50
   lootMaxDist: 5
+  fuelStored: 0
 --- !u!1 &5612044425529917559
 GameObject:
   m_ObjectHideFlags: 0
