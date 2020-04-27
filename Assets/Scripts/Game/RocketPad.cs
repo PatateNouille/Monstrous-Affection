@@ -66,8 +66,12 @@ public class RocketPad : Interactable
         partBubble = Instantiate(UI.Instance.simpleInfoBubble, partBubbleOffset.position, Quaternion.identity);
         fuelBubble = Instantiate(UI.Instance.simpleInfoBubble, fuelBubbleOffset.position, Quaternion.identity);
 
-        fuelBubble.SetContent("Fuel Intake", new List<Factory.ItemInfo>() { new Factory.ItemInfo("Gaz", 5) });
+        fuelIntake.inventory.onInventoryChanged += TryConsumeFuel;
+        fuelIntake.inventory.onInventoryChanged += SetFuelBubble;
+        fuelIntake.inventory.onInventoryChanged += SetFuelIntake;
 
+        SetFuelBubble();
+        SetFuelIntake();
         SetNextPart(0);
     }
 
@@ -83,38 +87,78 @@ public class RocketPad : Interactable
 
             SetNextPart(parts.Count);
         }
+    }
 
-        if (rocket != null && rocket.Power < 1f && fuelIntake.inventory.ItemCount > 0)
+    void TryConsumeFuel()
+    {
+        if (rocket == null || rocket.Power >= 1f) return;
+
+        if (fuelIntake.inventory.ItemCount == 0) return;
+
+        Dictionary<string, uint> itemsConsumed = new Dictionary<string, uint>();
+
+        foreach (var item in fuelIntake.inventory.Items)
         {
-            Dictionary<string, uint> itemsConsumed = new Dictionary<string, uint>();
+            ItemData data = ItemManager.Instance.GetData(item.Key);
 
-            foreach (var item in fuelIntake.inventory.Items)
+            for (int i = 0; i < item.Value; i++)
             {
-                ItemData data = ItemManager.Instance.GetData(item.Key);
-
-                for (int i = 0; i < item.Value; i++)
+                FuelData fuel = data as FuelData;
+                if (fuel != null)
                 {
-                    FuelData fuel = data as FuelData;
-                    if (fuel != null)
+                    uint count;
+                    itemsConsumed.TryGetValue(item.Key, out count);
+
+                    itemsConsumed[item.Key] = count + 1;
+
+                    if (rocket.AddFuel(1))
                     {
-                        uint count;
-                        itemsConsumed.TryGetValue(item.Key, out count);
-
-                        itemsConsumed[item.Key] = count + 1;
-
-                        if (rocket.AddFuel(fuel.power))
-                        {
-                            break;
-                        }
+                        break;
                     }
-
                 }
-            }
 
-            foreach (var item in itemsConsumed)
-            {
-                fuelIntake.inventory.Remove(item.Key, item.Value);
             }
+        }
+
+        foreach (var item in itemsConsumed)
+        {
+            fuelIntake.inventory.Remove(item.Key, item.Value);
+        }
+    }
+
+    void SetFuelBubble()
+    {
+        FuelData gazData = ItemManager.Instance.GetData("Gaz") as FuelData;
+
+        float fuelCapacity = Game.Instance.rocket.fuelCapacity;
+        float fuelMissing = (1f - rocket?.Power) * fuelCapacity ?? fuelCapacity;
+
+        uint gazNeeded = (uint)(fuelMissing / gazData.power);
+
+        if (gazNeeded > 0)
+            fuelBubble.SetContent("Fuel Intake", new List<(string, uint, uint?)>() { ("Gaz", gazNeeded, fuelIntake.inventory.Count("Gaz")) });
+        else
+        {
+            fuelBubble.SetTitle("Fueled !");
+            fuelBubble.ClearContent();
+        }
+    }
+
+    void SetFuelIntake()
+    {
+        FuelData gazData = ItemManager.Instance.GetData("Gaz") as FuelData;
+
+        float fuelCapacity = Game.Instance.rocket.fuelCapacity;
+        float fuelMissing = (1f - rocket?.Power) * fuelCapacity ?? fuelCapacity;
+
+        uint gazNeeded = (uint)(fuelMissing / gazData.power);
+
+        fuelIntake.inventory.maxItemCount = gazNeeded;
+
+        if (gazNeeded == 0)
+        {
+            fuelIntake.filter.infos.Clear();
+            fuelIntake.filter.allowedByDefault = false;
         }
     }
 
@@ -172,11 +216,11 @@ public class RocketPad : Interactable
         rocket.transform.position = rocketOffset.position;
         rocket.transform.rotation = rocketOffset.rotation;
 
+        rocket.OnPowerChanged += SetFuelBubble;
+        rocket.OnPowerChanged += SetFuelIntake;
+
         rocketPowerScreen.gameObject.SetActive(true);
         rocketPowerScreen.target = rocket;
-
-        fuelIntake.filter.infos.Clear();
-        fuelIntake.filter.allowedByDefault = false;
 
         partIntake.filter.infos.Clear();
         partIntake.filter.allowedByDefault = false;
@@ -186,6 +230,11 @@ public class RocketPad : Interactable
         UnityEngine.Material[] mats = renderer.materials;
 
         renderer.materials = mats.Select(m => m.name.Contains("Screen") ? matScreenOn : m).ToArray();
+
+        SetNextPart(-1);
+
+        TryConsumeFuel();
+        SetFuelBubble();
 
         return rocket;
     }
