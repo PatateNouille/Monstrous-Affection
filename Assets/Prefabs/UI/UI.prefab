@@ -724,7 +724,7 @@ GameObject:
   - component: {fileID: 3819034908421331506}
   - component: {fileID: 4560318795475243700}
   m_Layer: 5
-  m_Name: Player
+  m_Name: Planet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1559,7 +1559,7 @@ GameObject:
   - component: {fileID: 6571993652925647275}
   - component: {fileID: 691423277380615497}
   m_Layer: 5
-  m_Name: Health
+  m_Name: Resources
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2814,7 +2814,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d2dbcd09561356340b4ce8c1d34d3e90, type: 3}
+  m_Sprite: {fileID: 21300000, guid: db073b236afeb394f8e8f43c70fa821c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3034,7 +3034,7 @@ MonoBehaviour:
   rocketProgress: {fileID: 5567406312321210898}
   rocketFuel: {fileID: 9180816816271892532}
   jetpackCharge: {fileID: 9025211379072613286}
-  playerHealth: {fileID: 6571993652925647275}
+  planetResources: {fileID: 6571993652925647275}
   interactables: []
 --- !u!1 &8237461351704559194
 GameObject:

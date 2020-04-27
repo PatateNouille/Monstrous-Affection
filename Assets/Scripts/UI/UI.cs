@@ -30,7 +30,7 @@ public class UI : UniqueInstance<UI>
     public Bar rocketProgress = null;
     public Bar rocketFuel = null;
     public Bar jetpackCharge = null;
-    public Bar playerHealth = null;
+    public Bar planetResources = null;
 
     [HideInInspector]
     public List<Interactable> interactables = new List<Interactable>();
@@ -39,8 +39,10 @@ public class UI : UniqueInstance<UI>
 
     Camera cam = null;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         cam = MainCamera.Instance.camera;
 
         StartCoroutine(LateAwake());
@@ -55,7 +57,7 @@ public class UI : UniqueInstance<UI>
         rocketProgress.SetProgress(0f);
         rocketFuel.SetProgress(0f);
         jetpackCharge.SetProgress(1f);
-        playerHealth.SetProgress(1f);
+        planetResources.SetProgress(1f);
     }
 
     private void LateUpdate()

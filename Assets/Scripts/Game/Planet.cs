@@ -12,6 +12,9 @@ public class Planet : UniqueInstance<Planet>
 
     GameObject sphere = null;
 
+    int resourceCount = 0;
+    int resourceTotal = 0;
+
     void Start()
     {
         
@@ -87,20 +90,35 @@ public class Planet : UniqueInstance<Planet>
 
     public void Populate(PlanetGenData data)
     {
+        resourceTotal = 0;
+
         List<Vector3> pts = GetPoints(data.propDist);
 
         foreach (var deposit in data.deposits)
         {
             int depositLeft = data.perDepositRange.GetRandom();
 
+            resourceTotal += depositLeft;
+
             while (depositLeft-- > 0)
             {
                 Deposit d = Instantiate(deposit);
                 d.transform.position = PopRandom(pts);
+
+                d.onDie += RemoveResource;
             }
         }
 
+        resourceCount = resourceTotal;
+
         Monster m = Instantiate(Game.Instance.monster);
         m.transform.position = PopRandom(pts);
+    }
+
+    void RemoveResource()
+    {
+        resourceCount--;
+
+        UI.Instance.planetResources.SetProgress((float)resourceCount / resourceTotal);
     }
 }
