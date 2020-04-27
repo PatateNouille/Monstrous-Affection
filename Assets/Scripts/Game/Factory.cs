@@ -356,6 +356,8 @@ public class Factory : Interactable, IPowered
 
         powerCapacity.Timeout(-count * data.power);
 
+        OnPowerChanged?.Invoke();
+
         return count;
     }
 }

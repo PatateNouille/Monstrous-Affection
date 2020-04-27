@@ -5,7 +5,7 @@ using UnityEngine;
 public class Rocket : Interactable, IPowered
 {
     [SerializeField]
-    public float fuelCapacity = 1f;
+    public uint fuelCapacity = 1;
 
     [SerializeField]
     ParticleSystem thrustParticles = null;
@@ -25,13 +25,11 @@ public class Rocket : Interactable, IPowered
     [SerializeField]
     float lootMaxDist = 1f;
 
-    float fuelStored = 0f;
+    uint fuelStored = 0;
 
-    public float Power => fuelStored / fuelCapacity;
+    public float Power => (float)fuelStored / fuelCapacity;
 
     public bool HighEnough => transform.position.magnitude >= minimumFlyDist;
-
-    public float FloatProperty => FloatProperty;
 
     public EventPowerChanged OnPowerChanged { get; set; } = null;
 
@@ -40,8 +38,6 @@ public class Rocket : Interactable, IPowered
 
     public override bool CanBeInteractedWith()
     {
-        Debug.Log(FloatProperty);
-
         return base.CanBeInteractedWith() && Mathf.Approximately(Power, 1f) && Player.Instance.GrabbedType == null;
     }
 
@@ -59,9 +55,9 @@ public class Rocket : Interactable, IPowered
         return true;
     }
 
-    public bool AddFuel(float fuel)
+    public bool AddFuel(uint fuelCount)
     {
-        fuelStored += fuel;
+        fuelStored += fuelCount;
 
         bool full = fuelStored >= fuelCapacity;
 
