@@ -507,6 +507,7 @@ GameObject:
   - component: {fileID: 2320456634685866372}
   - component: {fileID: 5811645412660504476}
   - component: {fileID: 5811645412660504449}
+  - component: {fileID: 1073571533296059938}
   m_Layer: 14
   m_Name: Factory
   m_TagString: Untagged
@@ -604,7 +605,7 @@ MonoBehaviour:
     isStarted: 0
     repaintTrigger: 0
   recipeSelected: 0
-  continousCraft: 1
+  automaticCraft: 1
   recipes:
   - name: Rock To Ingot
     duration: 3
@@ -622,9 +623,23 @@ MonoBehaviour:
     output:
     - name: Gaz
       count: 1
-  uraniumPowered: 0
   crafting: 0
   dropping: 0
+--- !u!114 &1073571533296059938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5811645412660504479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77c90a26223b0684080f83a5e901bdc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  beamColor: {r: 12.377358, g: 10.332017, b: 0.4086866, a: 1}
+  tokenIcon: {fileID: 2800000, guid: c429930e722849345b5fbe8cf8058248, type: 3}
+  discoverDistance: 10
 --- !u!1 &5811645413365481182
 GameObject:
   m_ObjectHideFlags: 0

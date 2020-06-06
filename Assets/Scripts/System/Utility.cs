@@ -1558,6 +1558,116 @@ public static class Utility
 
     #endregion
 
+    #region Input
+
+    public class AxisInput
+    {
+        public static float deadzone = .1f;
+
+        public string axis { get; private set; } = "";
+
+        bool anyPressed = false;
+        bool anyHolded = false;
+        bool anyReleased = false;
+
+        bool posPressed = false;
+        bool posHolded = false;
+        bool posReleased = false;
+
+        bool negPressed = false;
+        bool negHolded = false;
+        bool negReleased = false;
+
+        public bool AnyPressed => anyPressed;
+        public bool AnyHolded => anyHolded;
+        public bool AnyReleased => anyReleased;
+
+        public bool PosPressed => posPressed;
+        public bool PosHolded => posHolded;
+        public bool PosReleased => posReleased;
+
+        public bool NegPressed => negPressed;
+        public bool NegHolded => negHolded;
+        public bool NegReleased => negReleased;
+
+        public bool used { get; private set; } = false;
+
+        public float value { get; private set; } = 0f;
+        public float raw { get; private set; } = 0f;
+
+        public float? deadzoneOverride { get; set; } = null;
+        public bool useRaw { get; set; } = true;
+
+        public AxisInput(string axis, float? deadzoneOverride = null, bool useRaw = true)
+        {
+            this.axis = axis;
+            this.deadzoneOverride = deadzoneOverride;
+            this.useRaw = useRaw;
+        }
+
+        void Update(ref bool pressed, ref bool holded, ref bool released, bool active)
+        {
+            if (pressed) pressed = false;
+            if (released) released = false;
+
+            if (!holded && !used)
+            {
+                if (active)
+                {
+                    pressed = true;
+                    holded = true;
+                }
+            }
+            else
+            {
+                if (!active)
+                {
+                    holded = false;
+                    if (!used) released = true;
+                }
+            }
+        }
+
+        public void Update()
+        {
+            value = Input.GetAxis(axis);
+            raw = Input.GetAxisRaw(axis);
+
+            float deadzoneActual = deadzoneOverride.GetValueOrDefault(deadzone);
+
+            float curVal = useRaw ? raw : value;
+            bool active = Mathf.Abs(curVal) > deadzoneActual;
+
+            Update(ref anyPressed, ref anyHolded, ref anyReleased, active);
+            Update(ref posPressed, ref posHolded, ref posReleased, active && curVal >= 0f);
+            Update(ref negPressed, ref negHolded, ref negReleased, active && curVal <= 0f);
+
+            if (used && !active) used = false;
+        }
+
+        public bool Use(bool release = true)
+        {
+            if (!anyHolded || used) return false;
+
+            used = true;
+            anyPressed = false;
+            anyHolded = false;
+            anyReleased = release;
+
+            if (posHolded) posReleased = release;
+            posPressed = false;
+            posHolded = false;
+
+            if (negHolded) negReleased = release;
+            negPressed = false;
+            negHolded = false;
+
+            return true;
+        }
+    }
+
+    #endregion
+
     // -------------------- EDITOR ONLY --------------------
 
 #if UNITY_EDITOR
@@ -2339,14 +2449,25 @@ public static class Utility
             float lh = EditorGUIUtility.singleLineHeight;
             position.height = lh;
 
-            EditorGUI.PropertyField(position, property.FindPropertyRelative("duration"), label);
-
-            if (EditorApplication.isPlaying)
+            if (!EditorApplication.isPlaying)
             {
-                position.y += position.height + progressSpacing;
-                position.height = progressHeight;
+                EditorGUI.PropertyField(position, property.FindPropertyRelative("duration"), label);
+            }
+            else
+            {
+                Rect[] zones = AreaCutoff(position, Side.Right, lh, EditorGUIUtility.standardVerticalSpacing);
+
+                EditorGUI.PropertyField(zones[0], property.FindPropertyRelative("duration"), label);
 
                 Timer timer = (Timer)GetTargetObjectWithProperty(property);
+
+                if (GUI.Button(zones[1], "►"))
+                {
+                    timer.Start();
+                }
+
+                position.y += position.height + progressSpacing;
+                position.height = progressHeight;
 
                 if (timer.IsStarted)
                 {

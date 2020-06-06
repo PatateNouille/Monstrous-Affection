@@ -75,7 +75,9 @@ public class PlanetSurfaceAligner : MonoBehaviour
 
     public void Align()
     {
-        transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(transform.forward, groundUp), groundUp);
+        Vector3 projectedForward = Vector3.ProjectOnPlane(transform.forward, groundUp);
+
+        transform.rotation = Quaternion.LookRotation(projectedForward.sqrMagnitude < .005f ? Vector3.forward : projectedForward, groundUp);
     }
 
     public void Snap()

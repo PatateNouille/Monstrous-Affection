@@ -1,39 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 using static Utility;
 
 public class MainCamera : UniqueInstance<MainCamera>
 {
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     bool fog = true;
 
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     Color fogColor = Color.gray;
 
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     float fogDensity = 1f;
 
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     float fogStart = 1f;
 
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     float fogEnd = 2f;
 
     [SerializeField]
-    [OnChangedCallback("UpdateSettings")]
+    [OnChangedCallback("UpdateFogSettings")]
     FogMode fogMode = FogMode.Exponential;
 
     [HideInInspector]
     public new Camera camera = null;
 
-    void UpdateSettings()
+    [HideInInspector]
+    public CinemachineBrain brain = null;
+
+    public void UpdateFogSettings()
     {
         RenderSettings.fog = fog;
         RenderSettings.fogColor = fogColor;
@@ -46,12 +50,31 @@ public class MainCamera : UniqueInstance<MainCamera>
     public void Load()
     {
         camera = GetComponent<Camera>();
+        brain = GetComponent<CinemachineBrain>();
 
-        UpdateSettings();
+        UpdateFogSettings();
     }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         Load();
+
+        SetWorldUp(Player.Instance.transform);
+    }
+
+    public void Warp(Vector3 pos)
+    {
+        brain.enabled = false;
+
+        transform.position = pos;
+
+        brain.enabled = true;
+    }
+
+    public void SetWorldUp(Transform worldUpOverride)
+    {
+        brain.m_WorldUpOverride = worldUpOverride;
     }
 }

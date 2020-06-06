@@ -18,6 +18,9 @@ public class LightBeam : MonoBehaviour
     [SerializeField]
     AnimationCurve opacityOverLifetime = null;
 
+    [SerializeField]
+    AnimationCurve intensityOverDistance = null;
+
     [ColorUsage(true, true)]
     public Color beamColor = Color.white;
 
@@ -47,13 +50,19 @@ public class LightBeam : MonoBehaviour
 
             visualBeam.localScale = baseScale * scaleOverLifetime.Evaluate(progress);
 
-            float opacity = opacityOverLifetime.Evaluate(progress);
+            float camDist = Vector3.Distance(transform.position, MainCamera.Instance.transform.position);
+
+            float h, s, v;
+            Color.RGBToHSV(beamColor, out h, out s, out v);
+            v = Mathf.Pow(2f, intensityOverDistance.Evaluate(camDist));
+
+            Color emission = Color.HSVToRGB(h, s, v, true);
+            Color transparency = Color.white * opacityOverLifetime.Evaluate(progress);
+
             foreach (var rend in rends)
             {
-                Color col = beamColor;
-                rend.material.SetColor("_EmissionColor", col);
-                col.a = opacity;
-                rend.material.color = col;
+                rend.material.SetColor("_EmissionColor", emission);
+                rend.material.color = transparency;
             }
         }
     }

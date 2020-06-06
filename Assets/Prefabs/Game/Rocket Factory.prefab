@@ -710,6 +710,7 @@ GameObject:
   - component: {fileID: 5811645412660504476}
   - component: {fileID: 5811645412660504449}
   - component: {fileID: 3895198920952138417}
+  - component: {fileID: 4344854220691026612}
   m_Layer: 14
   m_Name: Rocket Factory
   m_TagString: Untagged
@@ -807,7 +808,7 @@ MonoBehaviour:
     isStarted: 0
     repaintTrigger: 0
   recipeSelected: 0
-  continousCraft: 1
+  automaticCraft: 1
   recipes:
   - name: Rocket Thruster
     duration: 15
@@ -845,7 +846,6 @@ MonoBehaviour:
     output:
     - name: Rocket Nose
       count: 1
-  uraniumPowered: 0
   crafting: 0
   dropping: 0
 --- !u!114 &3895198920952138417
@@ -860,6 +860,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 365f0e04b117cdd41b982129681a8999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4344854220691026612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5811645412660504479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77c90a26223b0684080f83a5e901bdc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  beamColor: {r: 11.984314, g: 5.772549, b: 1.882353, a: 1}
+  tokenIcon: {fileID: 2800000, guid: d4064ab0b384c984b815db36202e4fda, type: 3}
+  discoverDistance: 10
 --- !u!1 &5811645413365481182
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,12 +1990,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14837f912f7919f44a5c3e1986f52ead, type: 3}
---- !u!4 &279459873220963770 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 14837f912f7919f44a5c3e1986f52ead,
-    type: 3}
-  m_PrefabInstance: {fileID: 5087488167684474528}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5938160684047289962 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1509539470440024266, guid: 14837f912f7919f44a5c3e1986f52ead,
@@ -1990,6 +1999,12 @@ Transform:
 --- !u!4 &4440585321072399944 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8879483669820182760, guid: 14837f912f7919f44a5c3e1986f52ead,
+    type: 3}
+  m_PrefabInstance: {fileID: 5087488167684474528}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &279459873220963770 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 14837f912f7919f44a5c3e1986f52ead,
     type: 3}
   m_PrefabInstance: {fileID: 5087488167684474528}
   m_PrefabAsset: {fileID: 0}

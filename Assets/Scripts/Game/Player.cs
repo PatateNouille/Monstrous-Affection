@@ -37,6 +37,9 @@ public class Player : UniqueInstance<Player>
     Timer interactCooldown = null;
 
     [SerializeField]
+    Timer pingCooldown = null;
+
+    [SerializeField]
     [Tooltip("Power in function of the distance to the planet ground")]
     AnimationCurve jetpackForce = null;
 
@@ -55,10 +58,8 @@ public class Player : UniqueInstance<Player>
     // Inputs
     Vector3 inputMove = new Vector3();
     float inputRotate = 0f;
-    bool inputPressInteract = false;
-    bool inputInteract = false;
-    bool inputDeinteract = false;
-    bool interactPrev = false;
+    AxisInput inputInteract = new AxisInput("Interact");
+    AxisInput inputPing = new AxisInput("Ping");
 
     // Components
     PlanetAttracter attracter = null;
@@ -71,7 +72,7 @@ public class Player : UniqueInstance<Player>
     List<IItem> grabbed = new List<IItem>();
     public ItemData GrabbedType => grabbed.Count > 0 ? grabbed[0].Data : null;
 
-    bool seating = false;
+    bool useSeat = false;
     bool seatLocked = false;
 
     float jetpackCharge = 0f;
@@ -92,6 +93,8 @@ public class Player : UniqueInstance<Player>
         GetInput();
 
         Actuate();
+
+        Ping();
 
         HandleSeat();
 
@@ -117,20 +120,17 @@ public class Player : UniqueInstance<Player>
 
         inputRotate = Input.GetAxisRaw("Mouse X");
 
-        float interactAxis = Input.GetAxisRaw("Interact");
-        inputInteract = interactAxis > .5f && !interactCooldown.IsStarted;
-        inputPressInteract = interactAxis > .5f && !interactPrev;
-        interactPrev = interactAxis >.5f;
-        inputDeinteract = interactAxis < -.5f && !interactCooldown.IsStarted;
+        inputInteract.Update();
+        inputPing.Update();
     }
 
     void HandleSeat()
     {
-        if (seating)
+        if (useSeat)
         {
             if (seatLocked) return;
 
-            if (inputMove.sqrMagnitude > 0f) Seat(null);
+            if (inputMove.sqrMagnitude > 0f) Sit(null);
         }
     }
 
@@ -154,15 +154,17 @@ public class Player : UniqueInstance<Player>
             t.SetHighlighted(same && canInteract);
         }
 
+        if (!canInteract || interactCooldown.IsStarted) return;
+
         IItem item = target as IItem;
         bool wasGrabbed = item?.IsGrabbed ?? false;
 
         Factory factory = target as Factory;
 
-        bool wantInteract = inputInteract;
-        if (wasGrabbed || factory != null) wantInteract = inputPressInteract;
+        bool wantInteract = inputInteract.PosHolded;
+        if (wasGrabbed || factory != null) wantInteract = inputInteract.PosPressed;
 
-        if (!wantInteract || !canInteract) return;
+        if (!wantInteract) return;
 
         if (target.Interact())
         {
@@ -194,7 +196,7 @@ public class Player : UniqueInstance<Player>
                 grabbed[i].transform.rotation = grabOffset.rotation;
             }
 
-            if (inputDeinteract)
+            if (inputInteract.NegHolded && !interactCooldown.IsStarted)
             {
                 interactCooldown.Start();
 
@@ -214,6 +216,23 @@ public class Player : UniqueInstance<Player>
         }
     }
 
+    void Ping()
+    {
+        if (pingCooldown.IsStarted)
+        {
+            pingCooldown.Timeout();
+        }
+        else
+        {
+            if (inputPing.AnyPressed)
+            {
+                pingCooldown.Start();
+
+                UI.Instance.PingAll(transform.position);
+            }
+        }
+    }
+
     void OnGrabbedDestroyed(Interactable destroyed)
     {
         grabbed.Remove(destroyed as IItem);
@@ -226,7 +245,7 @@ public class Player : UniqueInstance<Player>
 
     void FixedActuate()
     {
-        if (seating) return;
+        if (useSeat) return;
 
         rb.AddForce(transform.TransformDirection(inputMove.Flat()) * moveSpeed, ForceMode.VelocityChange);
 
@@ -254,13 +273,13 @@ public class Player : UniqueInstance<Player>
         rb.drag = onGround ? dragGround : dragAir;
     }
 
-    public void Seat(Transform seat)
+    public void Sit(Transform seat)
     {
         bool wantSeat = seat != null;
 
-        if (seating == wantSeat) return;
+        if (useSeat == wantSeat) return;
 
-        seating = wantSeat;
+        useSeat = wantSeat;
 
         if (wantSeat)
         {
@@ -271,7 +290,7 @@ public class Player : UniqueInstance<Player>
             attracter.enabled = false;
             aligner.enabled = false;
 
-            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
             rb.velocity = Vector3.zero;
         }
         else
@@ -281,13 +300,13 @@ public class Player : UniqueInstance<Player>
             attracter.enabled = true;
             aligner.enabled = true;
 
-            rb.isKinematic = false;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
         }
     }
 
     public void SetSeatLocked(bool locked)
     {
-        if (!seating) return;
+        if (!useSeat) return;
 
         seatLocked = locked;
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class Rocket : Interactable, IPowered
 {
@@ -15,6 +16,16 @@ public class Rocket : Interactable, IPowered
 
     [SerializeField]
     Transform playerSeat = null;
+
+    [SerializeField]
+    CinemachineVirtualCamera flyingVcam = null;
+
+    [SerializeField]
+    float flyingCamOffset = 1f;
+
+    [SerializeField]
+    [Tooltip("Multplier of the offset when assigning it to the VCAM transposer Y offset\nIn function of the distance to the planet")]
+    AnimationCurve flyingCamFactor = null;
 
     [SerializeField]
     float landDist = 1f;
@@ -38,7 +49,7 @@ public class Rocket : Interactable, IPowered
 
     public override bool CanBeInteractedWith()
     {
-        return base.CanBeInteractedWith() && Mathf.Approximately(Power, 1f) && Player.Instance.GrabbedType == null;
+        return base.CanBeInteractedWith() && fuelStored == fuelCapacity && Player.Instance.GrabbedType == null && !flying;
     }
 
     public override bool Interact()
@@ -47,7 +58,7 @@ public class Rocket : Interactable, IPowered
 
         TakeOff();
 
-        Player.Instance.Seat(playerSeat);
+        Player.Instance.Sit(playerSeat);
         Player.Instance.SetSeatLocked(true);
 
         Game.Instance.Launch();
@@ -75,6 +86,9 @@ public class Rocket : Interactable, IPowered
 
     void TakeOff()
     {
+        MainCamera.Instance.SetWorldUp(transform);
+        flyingVcam.gameObject.SetActive(true);
+
         thrustParticles.Play(true);
 
         flying = true;
@@ -88,7 +102,13 @@ public class Rocket : Interactable, IPowered
 
         Vector3 dir = Game.Instance.CurPlanet.transform.position - transform.position;
 
+        Vector3 localCamPos = transform.InverseTransformPoint(MainCamera.Instance.transform.position);
+        flyingVcam.enabled = false;
+
         transform.position = dir.normalized * landDist;
+
+        flyingVcam.enabled = true;
+        MainCamera.Instance.transform.position = transform.TransformPoint(localCamPos);
     }
 
     void Crash()
@@ -98,7 +118,10 @@ public class Rocket : Interactable, IPowered
         flying = false;
         landing = false;
 
-        Player.Instance.Seat(null);
+        MainCamera.Instance.SetWorldUp(Player.Instance.transform);
+        flyingVcam.gameObject.SetActive(false);
+
+        Player.Instance.Sit(null);
 
         foreach (var itemName in Game.Instance.startingStuff)
         {
@@ -112,11 +135,19 @@ public class Rocket : Interactable, IPowered
         Destroy();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (flying)
         {
             transform.position += transform.up * thrustSpeed * Time.deltaTime;
+
+            CinemachineTransposer transposer = flyingVcam.GetCinemachineComponent<CinemachineTransposer>();
+
+            Vector3 toPlanet = Game.Instance.CurPlanet.transform.position - transform.position;
+
+            float distFactor = flyingCamFactor.Evaluate(toPlanet.magnitude) * flyingCamOffset * (landing ? -1 : 1);
+
+            transposer.m_FollowOffset.y = distFactor;
         }
     }
 

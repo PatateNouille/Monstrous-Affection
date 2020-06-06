@@ -3029,13 +3029,18 @@ MonoBehaviour:
     type: 3}
   highlight: {fileID: 3958852323879170611, guid: 71945fac695fb9c42bcffe73a571aa53,
     type: 3}
+  pingToken: {fileID: 364079960344681651, guid: 2f78ff6aeecf03d4cb66df75cc5ec745,
+    type: 3}
   monsterHunger: {fileID: 5958819036185156821}
   monsterEatCD: {fileID: 4393197445527142004}
   rocketProgress: {fileID: 5567406312321210898}
   rocketFuel: {fileID: 9180816816271892532}
   jetpackCharge: {fileID: 9025211379072613286}
   planetResources: {fileID: 6571993652925647275}
+  pingDefaultSpeed: 20
+  pingTokenDuration: 5
   interactables: []
+  pingables: []
 --- !u!1 &8237461351704559194
 GameObject:
   m_ObjectHideFlags: 0

@@ -171,7 +171,7 @@ MonoBehaviour:
     repaintTrigger: 0
   jumpableLayers:
     serializedVersion: 2
-    m_Bits: 57600
+    m_Bits: 59648
   hitKnockback: 7
 --- !u!1 &5703268555161267258
 GameObject:

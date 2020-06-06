@@ -55,6 +55,9 @@ public class SceneSwitcher : Utility.LoadedSingleton<SceneSwitcher, SceneSwitche
 
         Player.Instance.interaction.targets.Clear();
 
+        SceneManager.MoveGameObjectToScene(MainCamera.Instance.gameObject, dest);
+        MainCamera.Instance.UpdateFogSettings();
+
         if (rocket != null)
         {
             SceneManager.MoveGameObjectToScene(rocket.gameObject, dest);
